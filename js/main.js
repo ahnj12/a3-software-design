@@ -7,8 +7,8 @@ $(function () {
         let selection = d3.select("#viz").datum(data);
         // ES6 class reusable chart variation
         let chart = new TimeSeriesChart()
-            // .width(500)
-            // .height(500)
+            .width(960)
+            .height(500)
             .x(d => +d.date.slice(4))
             .y(d => +d.price)
             .call(selection);

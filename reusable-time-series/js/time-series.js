@@ -32,10 +32,13 @@ class TimeSeriesChart {
             // Convert data to standard representation greedily;
             // this is needed for nondeterministic accessors.
             data = data.map(function(d, i) {
-                return [outerThis._xValue(d, i), outerThis._yValue(d, i)];
+                return {
+                    x: outerThis._xValue(d, i),
+                    y: outerThis._yValue(d, i),
+                    id: i
+                };
             });
-            console.log(data[0]);
-
+            // console.log(data);
 
             let ele = d3.select(this);
             let svg = ele.selectAll("svg").data([data]);
@@ -69,20 +72,20 @@ class TimeSeriesChart {
                 .attr('transform', `translate(${outerThis._margin.left - 40}, ${outerThis._margin.top + drawHeight / 2}) rotate(-90)`)
                 .attr('class', 'axis-label')
                 .text(outerThis._yTitle);
-                
-        
+
+
             // Create an ordinal color scale for coloring lines
             let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
             // Define xAxis and yAxis functions
-            let xAxis = d3.axisBottom().tickFormat(this._xFormat);
-            let yAxis = d3.axisLeft().tickFormat(this._yFormat);
+            let xAxis = d3.axisBottom().tickFormat(outerThis._xFormat);
+            let yAxis = d3.axisLeft().tickFormat(outerThis._yFormat);
 
             // Calculate x and y scales
-            let xExtent = d3.extent(data, d => d[0]);
+            let xExtent = d3.extent(data, d => d['x']);
             outerThis._xScale.domain([xExtent[0], xExtent[1]]).rangeRound([0, drawWidth]);
 
-            let yExtent = d3.extent(data, d => d[1]);
+            let yExtent = d3.extent(data, d => d['y']);
             outerThis._yScale.domain([yExtent[0], yExtent[1]]).rangeRound([drawHeight, 0]);
 
             // colorScale.domain()
@@ -93,11 +96,38 @@ class TimeSeriesChart {
             xAxisLabel.transition().duration(1000).call(xAxis);
             yAxisLabel.transition().duration(1000).call(yAxis);
 
-            // // Update axes
-            // xAxis.scale(xScale);
-            // yAxis.scale(yScale);
-            // ele.select('.axis.x').transition().duration(1000).call(xAxis);
-            // ele.select('.axis.y').transition().duration(1000).call(yAxis);
+            // Define a line function that will return a `path` element based on data
+            // hint: https://bl.ocks.org/mbostock/3883245
+            let line = d3.line()
+                .x(d => outerThis._xScale(d['x']))
+                .y(d => outerThis._yScale(d['y']));
+
+            // console.log(outerThis._xScale(2010));
+            // console.log(outerThis._yScale(1517.68));
+
+            let prices = g.selectAll('.prices').data([data,]);
+ 
+            prices.enter()
+                .append('path')
+                .attr('class', 'countries')
+                .attr("d", d => line(d))
+                .attr('fill', 'none')
+                .attr('stroke-width', '1.5')
+                .attr('stroke', 'red')
+                .attr('stroke-dasharray', function(d) {
+                    let length = d3.select(this).node().getTotalLength();
+                    return `${length} ${length}`;
+                })
+                .attr('stroke-dashoffset', function(d) {
+                    let length = d3.select(this).node().getTotalLength();
+                    return `${length}`;
+                })
+                .transition()
+                .duration(2500)
+                .attr('stroke-dashoffset', 0);
+
+
+
 
         })
     }
