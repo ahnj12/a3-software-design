@@ -73,6 +73,14 @@ class TimeSeriesChart {
                 .attr('class', 'axis-label')
                 .text(outerThis._yTitle);
 
+            // Apend an overlay rectangle to catch hover events
+            let overlay = g.append('rect')
+                .attr("class", "overlay")
+                .attr('width', drawWidth)
+                .attr('height', drawHeight)
+                .attr('fill', 'none')
+                .attr('pointer-events', 'all');
+
 
             // Create an ordinal color scale for coloring lines
             let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -106,7 +114,7 @@ class TimeSeriesChart {
             // console.log(outerThis._yScale(1517.68));
 
             let prices = g.selectAll('.prices').data([data,]);
- 
+
             prices.enter()
                 .append('path')
                 .attr('class', 'countries')
@@ -125,6 +133,71 @@ class TimeSeriesChart {
                 .transition()
                 .duration(2500)
                 .attr('stroke-dashoffset', 0);
+
+
+            function drawHovers(year) {
+                // Bisector function to get closest data point: note, this returns an *index* in your array
+                let bisector = d3.bisector(function(d, x) {
+                        return +d.x - x;
+                    }).left;
+                // let bisector = d3.bisector(d => d.x).left;
+
+                let joinable_data = [];
+
+
+                // Get hover data by using the bisector function to find the y value
+
+                data.sort((a, b) => d3.ascending(+a.x, +b.x));
+                let bisect = bisector(data, year);
+                bisect = data[bisect];
+
+                joinable_data.push(bisect);
+
+                
+                // // Do a data-join (enter, update, exit) to draw circles
+                let circles = g.selectAll('circle').data(joinable_data);
+                // Handle entering elements (see README.md)
+                circles.enter()
+                    .append('circle')
+                    .attr('r', '15px')
+                    .merge(circles)
+                    .attr("cx", outerThis._xScale(year))
+                    .attr('cy', obj => outerThis._yScale(obj.y))
+                    .attr('stroke', 'red')
+                    .attr('fill', 'none')
+                    .transition()
+                    .duration(2500);
+                circles.exit().remove();
+
+                // Do a data-join (enter, update, exit) draw text
+                let text = g.selectAll('.hover-text').data(joinable_data);
+
+                text.enter()
+                    .append('text')
+                    .attr('class', 'hover-text')
+                    .merge(text)
+                    .attr('x', outerThis._xScale(year))
+                    .attr('y', obj => outerThis._yScale(obj.y))
+                    .text(obj => obj.y)
+
+                text.exit().remove();
+                
+            }
+
+            d3.select('.overlay').on('mousemove', function(e) {
+                let mouse = d3.mouse(this);
+                let year = outerThis._xScale.invert(mouse[0]);
+                drawHovers(year);
+            })
+
+            // $('.overlay').on('mouseout', function(e) {
+            //     let elements = ['circle', '.hover-text'];
+            //     elements.forEach(element => d3.selectAll(element).remove());
+            //     // d3.selectAll('circle').remove();
+            // })
+
+
+
         })
     }
 
@@ -134,7 +207,7 @@ class TimeSeriesChart {
         } else {
             this[key] = value;
             return this;
-        }  
+        }
     }
 
     width(value) {
