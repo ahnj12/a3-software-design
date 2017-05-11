@@ -10,7 +10,7 @@ class TimeSeriesChart {
         this._yValue = d => d;
         this._xTitle = 'X AXIS TITLE';
         this._yTitle = 'Y AXIS TITLE';
-        this._colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+        this._lineColor = 'blue';
         this._toolTipStroke = 'red';
         this._strokeWidth = '1.5';
         this._transitionDuration = 1000;
@@ -172,7 +172,7 @@ class TimeSeriesChart {
                 .attr("d", d => line(d))
                 .attr('fill', 'none')
                 .attr('stroke-width', outerThis._strokeWidth)
-                .attr('stroke', d => outerThis._colorScale(d.id))
+                .attr('stroke', d => outerThis._lineColor)
                 .attr('stroke-dasharray', function(d) {
                     let length = d3.select(this).node().getTotalLength();
                     return `${length} ${length}`;
@@ -233,6 +233,14 @@ class TimeSeriesChart {
         return this._chain('_yValue', _);
     }
 
+    xScale(scale) {
+        return this._chain('_xScale', scale);
+    }
+
+    yScale(scale) {
+        return this._chain('_yScale', scale);
+    }
+
     // set the title of the x values label
     xTitle(title) {
         return this._chain('_xTitle', title);
@@ -254,9 +262,9 @@ class TimeSeriesChart {
         return this._chain('_yFormat', format);
     }
 
-    // set the color scale for the line
-    colorScale(scale) {
-        return this._chain('_colorScale', scale);
+    // set the color for the line
+    lineColor(value) {
+        return this._chain('_lineColor', value);
     }
 
     // set the stroke color for the tool tip circle
