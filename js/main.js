@@ -13,14 +13,16 @@ $(function () {
             .y(d => +d.price)
             .xTitle("Years")
             .yTitle("Prices")
-            .xFormat(d3.format("d"))
-            .yFormat(d3.format('d'));
+            // .xFormat(d3.format("d"))
+            // .yFormat(d3.format('d'))
+            .colorScale(d3.scaleOrdinal(d3.schemeCategory20))
+            .toolTipStroke('blue')
+            .strokeWidth('5')
+            .transitionDuration(2000);
 
         chart.call(selection);
 
-        console.log(chart.width());
-        // Mike Bostock's closure reusable chart proposal
-        // selection.call(chart.call);
+        console.log(chart.colorScale());
 
 
     });
