@@ -125,38 +125,49 @@ class TimeSeriesChart {
                 .transition()
                 .duration(2500)
                 .attr('stroke-dashoffset', 0);
-
-
-
-
         })
     }
 
+    _chain(key, value) {
+        if (value == undefined) {
+            return this[key];
+        } else {
+            this[key] = value;
+            return this;
+        }  
+    }
+
     width(value) {
-        if (value) {
-            this._width = value;
-        }
-        return this;
+        return this._chain('_width', value);
     }
 
     height(value) {
-        if (value) {
-            this._height = value;
-        }
-        return this;
+        return this._chain('_height', value);
     }
 
     x(_) {
-        if (_) {
-            this._xValue = _;
-        }
-        return this;
+        return this._chain('_xValue', _);
     }
 
     y(_) {
-        if (_) {
-            this._yValue = _;
-        }
-        return this;
+        return this._chain('_yValue', _);
     }
+
+    xTitle(title) {
+        return this._chain('_xTitle', title);
+    }
+
+    yTitle(title) {
+        return this._chain('_yTitle', title);
+    }
+
+    xFormat(format) {
+        return this._chain('_xFormat', format);
+
+    }
+
+    yFormat(format) {
+        return this._chain('_yFormat', format);
+    }
+
 }
